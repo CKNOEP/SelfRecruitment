@@ -230,7 +230,7 @@ end
 -- Command aliases
 SLASH_AUTOFLOOD1 = "/flood" -- Active ou desactive le flood
 
-SLASH_AUTOFLOODSETMESSAGE1 = "/floodmessage" -- Ex: "{rt2} La Jambobibonade {rt2}  Recrute des Joueurs pour son Raid Double SR 25  Naxx/Maly/Sartha2/3D Ce Dimanche à 14h30 (Conso/strat/gear requis) https://discord.gg/Paz2J6aXUh"
+SLASH_AUTOFLOODSETMESSAGE1 = "/floodmessage" -- Ex: "{rt2} Naxx/Maly/Sartha2/3D{rt2}   This Sunday at 2h30 PM (Conso/strat/gear) https://discord.gg/AbCdEfGh"
 SLASH_AUTOFLOODSETMESSAGE2 = "/floodmsg"  --
 
 SLASH_AUTOFLOODSETCHANNEL1 = "/floodchannel" -- Ex : 1 ou 'World'

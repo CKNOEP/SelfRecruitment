@@ -1,5 +1,5 @@
 --[[----------------------------------------------
-Repondeur created by Ayradyss in the first and enhanced by Chef de Loup
+Repondeur rebuild by lancestre - created by Ayradyss in the first and enhanced by Chef de Loup and LenweSaralonde
 
 The features of the mod in the following:
 - multiply responses with multiply keywords for each response
@@ -47,6 +47,9 @@ function Repondeur_OnLoad(event, self)
 	SlashCmdList["Repondeur"] = Repondeur_SlashHandler;
 	SLASH_Repondeur1 = "/Repondeur";
 	SLASH_Repondeur2 = "/rep";
+	SLASH_Repondeur3 = "/respondeur";
+	SLASH_Repondeur4 = "/recruitement";
+	SLASH_Repondeur5 = "/recruit";
 	
 	VariablesLoaded = 1;
 	Repondeur_InitializeSetup();
