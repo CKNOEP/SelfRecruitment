@@ -1,0 +1,1130 @@
+<Ui xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="localization.lua" />
+	<Script file="localization.de.lua" />
+	<Script file="localization.fr.lua" />
+	<Script file="MessageQueue.lua" />
+	<Script file="AutoFlood.lua" />
+	<Script file="Repondeur.lua" />
+	<Frame name="AutoFlood_Frame" toplevel="true" frameStrata="MEDIUM">
+		<Scripts>
+			<OnLoad function="AutoFlood_OnLoad">
+
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="RepondeurFrame" inherits="BackdropTemplate" hidden="true" parent="UIParent" movable="true" frameStrata="MEDIUM" enableMouse="true">
+		<Size x="600" y="320" />
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" />
+		</Anchors>
+		<Layers>
+			<Layer>
+				<Fontstring name="$parent_TitleText" inherits="GameFontNormal" text="Repondeur" justifyH="CENTER">
+					<Size x="200" y="30" />
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOP" relativeTo="$parent">
+							<Offset x="0" y="13" />
+						</Anchor>
+					</Anchors>
+					<Color r="1.0" g="0.8" b="0" />
+				</Fontstring>
+				<Texture name="$parent_TitleTex" file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size x="300" y="40" />
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+							<Offset y="10" />
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parent_ResponseFrame" inherits="BackdropTemplate">
+				<Size x="400" y="270" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset y="-50" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<EditBox name="$parent_ListKeywords" inherits="InputBoxTemplate" autoFocus="false">
+						<Size x="200" y="24" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+								<Offset x="15" y="-10" />
+							</Anchor>
+						</Anchors>
+						<Backdrop />
+						<Scripts>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnShow>
+								Repondeur_UpdateKeywords();
+							</OnShow>
+							<OnHide>
+								Repondeur_SaveKeywords();
+							</OnHide>
+							<OnEditFocusLost>
+								Repondeur_SaveKeywords();
+							</OnEditFocusLost>
+						</Scripts>
+						<FontString inherits="GameFontHighlightSmall" />
+					</EditBox>
+					<Button name="$parent_ButtonListKeywords" inherits="BackdropTemplate">
+						<Size x="210" y="24" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ListKeywords" relativePoint="TOPLEFT">
+								<Offset x="-5" />
+							</Anchor>
+						</Anchors>
+						<Backdrop />
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parent_Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+											<Offset x="5" />
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="0.8" />
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."_Label"):SetText(AUTO_RESPOND_LABEL_KEYWORDS_TEXT);
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+								local backdropinfo={
+									bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+									edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+									tile = true,
+									tileEdge = true,
+									tileSize = 16,
+									edgeSize = 16,
+									insets = { left = 5, right = 5, top = 5, bottom = 5 },
+									}
+								self:SetBackdrop(backdropInfo)
+							</OnLoad>
+							<OnShow>
+								Repondeur_UpdateButtonListKeywords();
+							</OnShow>
+							<OnClick>
+								getglobal(self:GetParent():GetName().."_ListKeywords"):SetFocus();
+							</OnClick>
+						</Scripts>
+					</Button>
+					<ScrollFrame name="$parent_ScrollFrameResponse" inherits="UIPanelScrollFrameTemplate">
+						<Size x="353" y="170" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonListKeywords" relativePoint="BOTTOMLEFT">
+								<Offset x="5" y="-25" />
+							</Anchor>
+						</Anchors>
+						<Backdrop>
+							<BorderColor r="0.753" />
+						</Backdrop>
+						<ScrollChild>
+							<EditBox name="$parent_ListResponse" multiLine="true" autoFocus="false">
+								<Size x="350" y="166" />
+								<Scripts>
+									<OnTextChanged>
+										local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
+										self:GetParent():UpdateScrollChildRect();
+										local min;
+										local max;
+										min, max = scrollBar:GetMinMaxValues();
+										if ( max &gt; 0 and (self.max ~= max) ) then
+											self.max = max;
+											scrollBar:SetValue(max);
+										end
+									</OnTextChanged>
+									<OnEscapePressed>
+										self:ClearFocus();
+									</OnEscapePressed>
+									<OnShow>
+										Repondeur_UpdateResponse();
+									</OnShow>
+									<OnHide>
+										Repondeur_SaveResponse();
+									</OnHide>
+									<OnEditFocusLost>
+										Repondeur_SaveResponse();
+									</OnEditFocusLost>
+								</Scripts>
+								<FontString inherits="GameFontHighlightSmall">
+									<Color r="1" g="1" b="1" />
+									<Shadow x="1" y="-1">
+										<Color r="0.753" g="0.753" b="0.753" />
+									</Shadow>
+								</FontString>
+							</EditBox>
+						</ScrollChild>
+					</ScrollFrame>
+					<Button name="$parent_ButtonListResponse" inherits="BackdropTemplate">
+						<Size x="362" y="180" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ScrollFrameResponse">
+								<Offset x="-6" y="7" />
+							</Anchor>
+						</Anchors>
+						<Backdrop />
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parent_Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+											<Offset x="5" />
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="0.8" />
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."_Label"):SetText(AUTO_RESPOND_LABEL_RESPONSE_TEXT);
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+								local backdropinfo={
+									bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+									edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+									tile = true,
+									tileEdge = true,
+									tileSize = 16,
+									edgeSize = 16,
+									insets = { left = 5, right = 5, top = 5, bottom = 5 },
+									}
+								self:SetBackdrop(backdropInfo)
+							</OnLoad>
+							<OnShow>
+								Repondeur_UpdateButtonListResponse();
+							</OnShow>
+							<OnClick>
+								getglobal(self:GetParent():GetName().."_ScrollFrameResponse_ListResponse"):SetFocus();
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="$parent_ButtonFlood" inherits="UIPanelButtonTemplate">
+						<Size x="120" y="24" />
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+								<Offset x="10" y="10" />
+							</Anchor>
+						</Anchors>
+						<Backdrop />
+						<Scripts>
+							<OnLoad>
+								self:SetText(AUTO_RESPOND_BUTTON_FLOOD_TEXT)
+							</OnLoad>
+							<OnShow>
+								Repondeur_ButtonFloodOnShow();
+							</OnShow>
+							<OnClick>
+								Repondeur_ButtonFloodOnClick();
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="$parent_ButtonShowOptions" inherits="UIPanelButtonTemplate">
+						<Size x="120" y="24" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonFlood" relativePoint="TOPRIGHT">
+								<Offset x="10" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetText(AUTO_RESPOND_BUTTON_OPTIONS_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_ButtonShowOptionsOnShow();
+							</OnShow>
+							<OnClick>
+								Repondeur_ButtonShowOptionsOnClick();
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_OptionsFrame">
+				<Size x="200" y="300" />
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
+				</Anchors>
+				<Frames>
+					<CheckButton name="$parent_ButtonActive" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+								<Offset x="5" y="-20" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_ACTIVE_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_UpdateActive();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleActive();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonScript" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonActive" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_SCRIPT_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_UpdateScript();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleScript();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonCanGuild" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonScript" relativePoint="BOTTOMLEFT">
+								<Offset y="-10" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_CANGUILD_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitCanGuild();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleCanGuild();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonCanParty" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonCanGuild" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_CANGROUP_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitCanParty();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleCanParty();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonCanRaid" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonCanParty" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_CANRAID_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitCanRaid();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleCanRaid();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonCanFriends" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonCanRaid" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_CANFRIENDS_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitCanFriends();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleCanFriends();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<EditBox name="$parent_ListCanNames" autoFocus="false">
+						<Size x="150" y="12" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonCanFriends" relativePoint="BOTTOMLEFT">
+								<Offset x="10" y="-15" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnShow>
+								Repondeur_InitCanNames();
+							</OnShow>
+							<OnHide>
+								Repondeur_SaveCanNames();
+							</OnHide>
+							<OnEditFocusLost>
+								Repondeur_SaveCanNames();
+							</OnEditFocusLost>
+						</Scripts>
+						<FontString inherits="GameFontHighlightSmall" />
+					</EditBox>
+					<Button name="$parent_ButtonListCanNames" inherits="BackdropTemplate">
+						<Size x="160" y="22" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ListCanNames" relativePoint="TOPLEFT">
+								<Offset x="-5" y="5" />
+							</Anchor>
+						</Anchors>
+						<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+							<BackgroundInsets>
+								<AbsInset left="5" right="5" top="5" bottom="5" />
+							</BackgroundInsets>
+							<TileSize>
+								<AbsValue val="16" />
+							</TileSize>
+							<EdgeSize>
+								<AbsValue val="16" />
+							</EdgeSize>
+						</Backdrop>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parent_Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="TOPLEFT" />
+									</Anchors>
+									<Color r="1" g="0.8" />
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."_Label"):SetText(AUTO_RESPOND_BUTTON_CANNAMES_TEXT);
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+							</OnLoad>
+							<OnShow>
+								Repondeur_UpdateButtonListCanNames();
+							</OnShow>
+							<OnClick>
+								getglobal(self:GetParent():GetName().."_ListCanNames"):SetFocus();
+							</OnClick>
+						</Scripts>
+					</Button>
+					<CheckButton name="$parent_ButtonTellGuild" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonListCanNames" relativePoint="BOTTOMLEFT">
+								<Offset x="-5" y="-10" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_RESPONDTOGUILD_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitTellGuild();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleTellGuild();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonTellParty" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonTellGuild" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_RESPONDTOGROUP_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitTellParty();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleTellParty();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parent_ButtonTellRaid" inherits="OptionsCheckButtonTemplate">
+						<Size x="20" y="20" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ButtonTellParty" relativePoint="BOTTOMLEFT">
+								<Offset y="-5" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_BUTTON_RESPONDTORAID_TEXT);
+							</OnLoad>
+							<OnShow>
+								Repondeur_InitTellRaid();
+							</OnShow>
+							<OnClick>
+								Repondeur_ToggleTellRaid();
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+				</Frames>
+			</Frame>
+			<Button name="$parent_ButtonPrevious" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset x="10" y="-15" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_BEFORE_TEXT);
+					</OnLoad>
+					<OnShow>
+						Repondeur_ButtonPreviousOnShow();
+					</OnShow>
+					<OnClick>
+						Repondeur_ButtonPreviousOnClick();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_ButtonNext" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ButtonPrevious" relativePoint="TOPRIGHT">
+						<Offset x="10" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_NEXT_TEXT)
+					</OnLoad>
+					<OnShow>
+						Repondeur_ButtonNextOnShow();
+					</OnShow>
+					<OnClick>
+						Repondeur_ButtonNextOnClick();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_ButtonDelete" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent_OptionsFrame" relativePoint="TOPLEFT">
+						<Offset x="-10" y="-15" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_DELETE_TEXT)
+					</OnLoad>
+					<OnShow>
+						Repondeur_ButtonOnShow();
+					</OnShow>
+					<OnClick>
+						Repondeur_ButtonDelete();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_ButtonNew" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent_ButtonDelete" relativePoint="TOPLEFT">
+						<Offset x="-10" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_NEW_TEXT)
+					</OnLoad>
+					<OnClick>
+						Repondeur_ButtonNew();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_ButtonExit" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset x="-10" y="10" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_EXIT_TEXT)
+					</OnLoad>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Repondeur_OnLoad(event, self);
+				local backdropInfo =
+				{
+					bgFile = "Interface\\TutorialFrame\\TutorialFrameBackground",
+					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					tile = true,
+					tileEdge = true,
+					tileSize = 16,
+					edgeSize = 16,
+					insets = { left = 5, right = 5, top = 5, bottom = 5 },
+				}
+				self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+				self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+				self:SetBackdrop(backdropInfo)
+			</OnLoad>
+			<OnEvent>
+
+			</OnEvent>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+	<Frame name="RepondeurOptionsFrame" inherits="BackdropTemplate" hidden="true" parent="UIParent" movable="true" frameStrata="MEDIUM" enableMouse="true">
+		<Size x="300" y="210" />
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" />
+		</Anchors>
+		<Layers>
+			<Layer>
+				<Fontstring name="$parent_TitleText" inherits="GameFontNormal" text="Repondeur Options" justifyH="CENTER">
+					<Size x="400" y="30" />
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOP" relativeTo="$parent">
+							<Offset x="0" y="13" />
+						</Anchor>
+					</Anchors>
+					<Color r="1.0" g="0.8" b="0" />
+				</Fontstring>
+				<Texture name="$parent_TitleTex" file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size x="500" y="40" />
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+							<Offset y="10" />
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_ActiveMod" inherits="OptionsCheckButtonTemplate">
+				<Size x="20" y="20" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset x="5" y="-20" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_OPTIONS_BUTTON_ACTIVEMOD);
+					</OnLoad>
+					<OnShow>
+						RepondeurOptions_InitActiveMod();
+					</OnShow>
+					<OnClick>
+						RepondeurOptions_ToggleActiveMod();
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_InFight" inherits="OptionsCheckButtonTemplate">
+				<Size x="20" y="20" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ActiveMod" relativePoint="BOTTOMLEFT">
+						<Offset y="-5" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_OPTIONS_BUTTON_INFIGHT);
+					</OnLoad>
+					<OnShow>
+						RepondeurOptions_InitInFight();
+					</OnShow>
+					<OnClick>
+						RepondeurOptions_ToggleInFight();
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Frame name="$parent_Scaling">
+				<Size x="280" y="40" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_InFight" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Frames>
+					<Slider name="$parent_Slider" inherits="OptionsSliderTemplate" minValue="0" maxValue="0">
+						<Size x="270" y="17" />
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset y="-20" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnValueChanged>
+								RepondeurOptions_Scaling_OnValueChanged();
+							</OnValueChanged>
+							<OnShow>
+								RepondeurOptions_Scaling_OnShow();
+							</OnShow>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+			<CheckButton name="$parent_SpamCheck" inherits="OptionsCheckButtonTemplate">
+				<Size x="20" y="20" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Scaling" relativePoint="BOTTOMLEFT">
+						<Offset y="-5" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(self:GetName().."Text"):SetText(AUTO_RESPOND_OPTIONS_BUTTON_SPAMCHECK);
+					</OnLoad>
+					<OnShow>
+						RepondeurOptions_InitSpamCheck();
+					</OnShow>
+					<OnClick>
+						RepondeurOptions_ToggleSpamCheck();
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Frame name="$parent_SpamTimer">
+				<Size x="280" y="40" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_SpamCheck" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Frames>
+					<Slider name="$parent_Slider" inherits="OptionsSliderTemplate" minValue="0" maxValue="0">
+						<Size x="270" y="17" />
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset y="-20" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnValueChanged>
+								RepondeurOptions_SpamTimer_OnValueChanged();
+							</OnValueChanged>
+							<OnShow>
+								RepondeurOptions_SpamTimer_OnShow();
+							</OnShow>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+			<Button name="$parent_ButtonExit" inherits="UIPanelButtonTemplate">
+				<Size x="80" y="24" />
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset x="-10" y="10" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetText(AUTO_RESPOND_BUTTON_EXIT_TEXT)
+					</OnLoad>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Repondeur_OnLoad(event, self);
+				local backdropInfo =
+				{
+					bgFile = "Interface\\TutorialFrame\\TutorialFrameBackground",
+					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					tile = true,
+					tileEdge = true,
+					tileSize = 16,
+					edgeSize = 16,
+					insets = { left = 5, right = 5, top = 5, bottom = 5 },
+				}
+
+				self:SetBackdrop(backdropInfo)
+			</OnLoad>
+			<OnEvent>
+
+			</OnEvent>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+	<Frame name="RepondeurFloodFrame" inherits="BackdropTemplate" mixin="" hidden="true" parent="UIParent" movable="true" frameStrata="MEDIUM" enableMouse="true">
+		<Size x="518" y="320" />
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" />
+		</Anchors>
+		<Layers>
+			<Layer>
+				<Fontstring name="$parent_TitleText" inherits="GameFontNormal" text="Flood Message" justifyH="CENTER">
+					<Size x="200" y="30" />
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOP" relativeTo="$parent">
+							<Offset x="0" y="13" />
+						</Anchor>
+					</Anchors>
+					<Color r="1.0" g="0.8" b="0" />
+				</Fontstring>
+				<Texture name="$parent_TitleTex" file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size x="300" y="40" />
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+							<Offset y="10" />
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parent_ResponseFrame" inherits="BackdropTemplate">
+				<Size x="501" y="297" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset x="3" y="-23" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Button name="$parent_ButtonListResponse" inherits="BackdropTemplate">
+						<Size x="326" y="227" />
+						<Anchors>
+							<Anchor x="19" y="-3" point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" />
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parent_Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+											<Offset x="4" />
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="0.8" />
+									<Shadow x="1" y="-1">
+										<Color r="0.502" g="0.502" b="0.502" />
+									</Shadow>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."_Label"):SetText(AUTO_RESPOND_LABEL_FLOOD_TEXT);
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+							</OnLoad>
+							<OnShow>
+								getglobal(self:GetParent():GetName().."_ScrollFrameResponse_ListResponse"):SetText(Flood_Config.message);
+
+							</OnShow>
+							<OnHide>
+								Repondeur_Flood_SaveResponse();
+							</OnHide>
+							<OnClick>
+
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="RepondeurFlood_ResponseFrame_ButtonLaunch" inherits="UIPanelButtonTemplate">
+						<Size x="120" y="24" />
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+								<Offset x="-378" y="15" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetText("ON/OFF");
+							</OnLoad>
+							<OnShow>
+								Repondeur_ButtonShowOptionsOnShow();
+							</OnShow>
+							<OnClick>
+								SlashCmdList["AUTOFLOOD"]("flood")
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="RepondeurFloodFrame_ResponseFrame_Exit" inherits="UIPanelButtonTemplate">
+						<Size x="120" y="24" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="RepondeurFlood_ResponseFrame_ButtonLaunch" relativePoint="TOPLEFT">
+								<Offset x="368" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetText(AUTO_RESPOND_BUTTON_EXIT_TEXT)
+							</OnLoad>
+							<OnShow>
+								Repondeur_ButtonFloodOnShow();
+							</OnShow>
+							<OnClick>
+								Repondeur_ButtonFloodOnClick();
+							</OnClick>
+						</Scripts>
+					</Button>
+					<MessageFrame inherits="BackdropTemplate" parent="RepondeurFloodFrame_ResponseFrame" toplevel="true">
+						<Size x="374" y="229" />
+						<Anchors>
+							<Anchor x="3" y="-13" point="TOPLEFT" />
+						</Anchors>
+						<Frames>
+							<ScrollFrame name="$parent_ScrollFrameResponse" inherits="UIPanelScrollFrameTemplate, BackdropTemplate">
+								<Size x="326" y="201" />
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" relativePoint="TOPLEFT">
+										<Offset x="19" y="-29" />
+									</Anchor>
+								</Anchors>
+								<ScrollChild>
+									<EditBox name="$parent_ListResponse" multiLine="true" autoFocus="false">
+										<Size x="350" y="166" />
+										<Scripts>
+											<OnTextChanged>
+												local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
+												self:GetParent():UpdateScrollChildRect();
+												local min;
+												local max;
+												min, max = scrollBar:GetMinMaxValues();
+												if ( max &gt; 0 and (self.max ~= max) ) then
+													self.max = max;
+													scrollBar:SetValue(max);
+												end
+											</OnTextChanged>
+											<OnEscapePressed>
+												self:ClearFocus();
+											</OnEscapePressed>
+											<OnShow>
+												Repondeur_UpdateResponse();
+											</OnShow>
+											<OnHide>
+												Repondeur_SaveResponse();
+											</OnHide>
+											<OnEditFocusLost>
+												Repondeur_SaveResponse();
+											</OnEditFocusLost>
+										</Scripts>
+										<FontString inherits="GameFontHighlightSmall" nonspacewrap="true">
+											<Color r="1" g="1" b="1" />
+											<Shadow x="1" y="-1">
+												<Color r="0.753" g="0.753" b="0.753" />
+											</Shadow>
+										</FontString>
+									</EditBox>
+								</ScrollChild>
+							</ScrollFrame>
+						</Frames>
+						<Scripts>
+							<OnLoad>
+								self:SetBackdrop( {
+										bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+										edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+										tile = true,
+										tileEdge = true,
+										tileSize = 16,
+										edgeSize = 16,
+										insets = { left = 5, right = 5, top = 5, bottom = 5 }
+									})
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+							</OnLoad>
+						</Scripts>
+						<FontString inherits="ErrorFont">
+							<Color r="1" g="0.82" />
+							<Shadow>
+								<Offset>
+									<AbsDimension x="1" y="-1" />
+								</Offset>
+								<Color />
+							</Shadow>
+						</FontString>
+					</MessageFrame>
+					<Frame name="FrameFloodOption" inherits="BackdropTemplate" mixin="">
+						<Size x="108" y="229" />
+						<Anchors>
+							<Anchor x="383" y="-13" point="TOPLEFT" />
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="FontStringChannel" inherits="GameFontNormal" text="Channel">
+									<Size x="66" y="10" />
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="FrameFloodOption" relativePoint="TOPLEFT">
+											<Offset x="3" y="-16" />
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<FontString name="FontStringFreq" inherits="GameFontNormal" text="Freq. (sec)">
+									<Size x="79" y="10" />
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="FrameFloodOption" relativePoint="TOPLEFT">
+											<Offset x="7" y="-59" />
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<EditBox name="$parent_EditBoxChannel" inherits="InputBoxTemplate" parent="FrameFloodOption">
+								<Size x="63" y="21" />
+								<Anchors>
+									<Anchor x="10" y="-32" point="TOPLEFT" />
+								</Anchors>
+								<Scripts>
+									<OnEscapePressed>
+										self:ClearFocus();
+									</OnEscapePressed>
+									<OnShow>
+										self:SetText(Flood_Config.channel);
+									</OnShow>
+									<OnHide>
+										Flood_Config.channel = self:GetText();
+									</OnHide>
+									<OnEditFocusLost>
+										Flood_Config.channel = self:GetText();
+									</OnEditFocusLost>
+								</Scripts>
+													
+							</EditBox>
+							
+							<Button name="ButtonOKChannel" inherits="UIPanelButtonTemplate" parent="FrameFloodOption" text="OK">
+								<Size x="26" y="17" />
+								<Anchors>
+									<Anchor x="6" y="-2" point="TOPLEFT" relativeTo="FrameFloodOption_EditBoxChannel" relativePoint="TOPRIGHT" />
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										Flood_Config.channel = FrameFloodOption_EditBoxChannel:GetText();
+									</OnClick>
+								</Scripts>
+							
+							</Button>
+							<EditBox name="$parent_EditBoxFreq" inherits="InputBoxTemplate" parent="FrameFloodOption">
+								<Size x="63" y="21" />
+								<Anchors>
+									<Anchor x="10" y="-74" point="TOPLEFT" />
+								</Anchors>
+								<Scripts>
+									<OnEscapePressed>
+										self:ClearFocus();
+									</OnEscapePressed>
+									<OnShow>
+										self:SetText(Flood_Config.rate);
+									</OnShow>
+									<OnHide>
+										Flood_Config.rate = tonumber(self:GetText());
+									</OnHide>
+									<OnEditFocusLost>
+										Flood_Config.rate = tonumber(self:GetText());
+									</OnEditFocusLost>
+								</Scripts>
+							
+							</EditBox>
+							<Button name="ButtonOKFreq" inherits="UIPanelButtonTemplate" parent="FrameFloodOption" text="OK">
+								<Size x="26" y="17" />
+								<Anchors>
+									<Anchor x="6" y="-2" point="TOPLEFT" relativeTo="FrameFloodOption_EditBoxFreq" relativePoint="TOPRIGHT" />
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										--print(FrameFloodOption_EditBoxFreq:GetText());
+										Flood_Config.rate = tonumber(FrameFloodOption_EditBoxFreq:GetText());
+									</OnClick>
+								</Scripts>
+							
+							</Button>
+						</Frames>
+						<Scripts>
+							<OnLoad>
+								self:SetBackdrop( {
+										bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+										edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+										tile = true,
+										tileEdge = true,
+										tileSize = 16,
+										edgeSize = 16,
+										insets = { left = 5, right = 5, top = 5, bottom = 5 }
+									})
+								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+
+								FrameFloodOption_OnLoad()
+							</OnLoad>
+
+							<OnShow>
+
+							</OnShow>
+
+
+						</Scripts>
+					
+					
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						RepondeurFloodFrame_ResponseFrame_OnLoad()
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Repondeur_OnLoad(event, self);
+				self:SetBackdrop( {
+				                bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+				                edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+				                tile = true,
+				                tileEdge = true,
+				                tileSize = 16,
+				                edgeSize = 16,
+				                insets = { left = 5, right = 5, top = 5, bottom = 5 }
+				            })
+				self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+				self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+			</OnLoad>
+			<OnEvent>
+
+			</OnEvent>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+</Ui>

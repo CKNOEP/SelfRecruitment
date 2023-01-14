@@ -1,0 +1,9 @@
+## Interface: 30400
+## X-Min-Interface-Wrath: 30400
+## Title: Self Recruitment, Spam & Responder
+## Author: Updated & Modified by L'ancestre - creation Ayradyss/Chef de Loup -  and Andrew "HellsGuard" Allan -HF Creations
+## Notes: Automatically sends a whispered response to someone who whispers you using the prescribed string.
+## SavedVariablesPerCharacter: RepondeurOptions, RepondeurMainOptions, AF_characterConfig
+## SavedVariables: AF_config
+
+Repondeur.xml
