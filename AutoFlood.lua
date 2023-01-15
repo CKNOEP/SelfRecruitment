@@ -37,7 +37,7 @@ function AutoFlood_OnEvent(self, event)
 	if event == "VARIABLES_LOADED" then
 
 		-- Add-on version
-		local version = GetAddOnMetadata("AutoFlood", "Version")
+		local version = GetAddOnMetadata("SelfRecruitment", "Version")
 
 		-- Config key used for the old account-wide configuration table
 		local characterId = GetRealmName() .. '-' .. UnitName("player")
