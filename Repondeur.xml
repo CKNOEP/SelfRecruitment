@@ -6,6 +6,9 @@
 	<Script file="AutoFlood.lua" />
 	<Script file="Repondeur.lua" />
 	<Frame name="AutoFlood_Frame" toplevel="true" frameStrata="MEDIUM">
+		<Anchors>
+			<Anchor point="TOPLEFT" />
+		</Anchors>
 		<Scripts>
 			<OnLoad function="AutoFlood_OnLoad">
 
@@ -248,9 +251,9 @@
 				</Frames>
 			</Frame>
 			<Frame name="$parent_OptionsFrame">
-				<Size x="200" y="300" />
+				<Size x="106" y="300" />
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
+					<Anchor x="-94" point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
 				</Anchors>
 				<Frames>
 					<CheckButton name="$parent_ButtonActive" inherits="OptionsCheckButtonTemplate">
@@ -786,7 +789,7 @@
 		</Scripts>
 	</Frame>
 	<Frame name="RepondeurFloodFrame" inherits="BackdropTemplate" mixin="" hidden="true" parent="UIParent" movable="true" frameStrata="MEDIUM" enableMouse="true">
-		<Size x="518" y="320" />
+		<Size x="526" y="320" />
 		<Anchors>
 			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" />
 		</Anchors>
@@ -813,7 +816,7 @@
 		</Layers>
 		<Frames>
 			<Frame name="$parent_ResponseFrame" inherits="BackdropTemplate">
-				<Size x="501" y="297" />
+				<Size x="523" y="297" />
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
 						<Offset x="3" y="-23" />
@@ -821,9 +824,9 @@
 				</Anchors>
 				<Frames>
 					<Button name="$parent_ButtonListResponse" inherits="BackdropTemplate">
-						<Size x="326" y="227" />
+						<Size x="326" y="20" />
 						<Anchors>
-							<Anchor x="19" y="-3" point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" />
+							<Anchor x="3" y="-3" point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" />
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
@@ -848,7 +851,6 @@
 							</OnLoad>
 							<OnShow>
 								getglobal(self:GetParent():GetName().."_ScrollFrameResponse_ListResponse"):SetText(Flood_Config.message);
-
 							</OnShow>
 							<OnHide>
 								Repondeur_Flood_SaveResponse();
@@ -862,7 +864,7 @@
 						<Size x="120" y="24" />
 						<Anchors>
 							<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
-								<Offset x="-378" y="15" />
+								<Offset x="-384" y="15" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -878,10 +880,10 @@
 						</Scripts>
 					</Button>
 					<Button name="RepondeurFloodFrame_ResponseFrame_Exit" inherits="UIPanelButtonTemplate">
-						<Size x="120" y="24" />
+						<Size x="97" y="24" />
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="RepondeurFlood_ResponseFrame_ButtonLaunch" relativePoint="TOPLEFT">
-								<Offset x="368" />
+								<Offset x="396" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -896,86 +898,10 @@
 							</OnClick>
 						</Scripts>
 					</Button>
-					<MessageFrame inherits="BackdropTemplate" parent="RepondeurFloodFrame_ResponseFrame" toplevel="true">
-						<Size x="374" y="229" />
-						<Anchors>
-							<Anchor x="3" y="-13" point="TOPLEFT" />
-						</Anchors>
-						<Frames>
-							<ScrollFrame name="$parent_ScrollFrameResponse" inherits="UIPanelScrollFrameTemplate, BackdropTemplate">
-								<Size x="326" y="201" />
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" relativePoint="TOPLEFT">
-										<Offset x="19" y="-29" />
-									</Anchor>
-								</Anchors>
-								<ScrollChild>
-									<EditBox name="$parent_ListResponse" multiLine="true" autoFocus="false">
-										<Size x="350" y="166" />
-										<Scripts>
-											<OnTextChanged>
-												local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
-												self:GetParent():UpdateScrollChildRect();
-												local min;
-												local max;
-												min, max = scrollBar:GetMinMaxValues();
-												if ( max &gt; 0 and (self.max ~= max) ) then
-													self.max = max;
-													scrollBar:SetValue(max);
-												end
-											</OnTextChanged>
-											<OnEscapePressed>
-												self:ClearFocus();
-											</OnEscapePressed>
-											<OnShow>
-												Repondeur_UpdateResponse();
-											</OnShow>
-											<OnHide>
-												Repondeur_SaveResponse();
-											</OnHide>
-											<OnEditFocusLost>
-												Repondeur_SaveResponse();
-											</OnEditFocusLost>
-										</Scripts>
-										<FontString inherits="GameFontHighlightSmall" nonspacewrap="true">
-											<Color r="1" g="1" b="1" />
-											<Shadow x="1" y="-1">
-												<Color r="0.753" g="0.753" b="0.753" />
-											</Shadow>
-										</FontString>
-									</EditBox>
-								</ScrollChild>
-							</ScrollFrame>
-						</Frames>
-						<Scripts>
-							<OnLoad>
-								self:SetBackdrop( {
-										bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-										edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-										tile = true,
-										tileEdge = true,
-										tileSize = 16,
-										edgeSize = 16,
-										insets = { left = 5, right = 5, top = 5, bottom = 5 }
-									})
-								self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
-								self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
-							</OnLoad>
-						</Scripts>
-						<FontString inherits="ErrorFont">
-							<Color r="1" g="0.82" />
-							<Shadow>
-								<Offset>
-									<AbsDimension x="1" y="-1" />
-								</Offset>
-								<Color />
-							</Shadow>
-						</FontString>
-					</MessageFrame>
 					<Frame name="FrameFloodOption" inherits="BackdropTemplate" mixin="">
-						<Size x="108" y="229" />
+						<Size x="94" y="213" />
 						<Anchors>
-							<Anchor x="383" y="-13" point="TOPLEFT" />
+							<Anchor x="418" y="-29" point="TOPLEFT" />
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
@@ -999,7 +925,7 @@
 						</Layers>
 						<Frames>
 							<EditBox name="$parent_EditBoxChannel" inherits="InputBoxTemplate" parent="FrameFloodOption">
-								<Size x="63" y="21" />
+								<Size x="50" y="21" />
 								<Anchors>
 									<Anchor x="10" y="-32" point="TOPLEFT" />
 								</Anchors>
@@ -1017,9 +943,7 @@
 										Flood_Config.channel = self:GetText();
 									</OnEditFocusLost>
 								</Scripts>
-													
 							</EditBox>
-							
 							<Button name="ButtonOKChannel" inherits="UIPanelButtonTemplate" parent="FrameFloodOption" text="OK">
 								<Size x="26" y="17" />
 								<Anchors>
@@ -1030,10 +954,9 @@
 										Flood_Config.channel = FrameFloodOption_EditBoxChannel:GetText();
 									</OnClick>
 								</Scripts>
-							
 							</Button>
 							<EditBox name="$parent_EditBoxFreq" inherits="InputBoxTemplate" parent="FrameFloodOption">
-								<Size x="63" y="21" />
+								<Size x="50" y="21" />
 								<Anchors>
 									<Anchor x="10" y="-74" point="TOPLEFT" />
 								</Anchors>
@@ -1051,7 +974,6 @@
 										Flood_Config.rate = tonumber(self:GetText());
 									</OnEditFocusLost>
 								</Scripts>
-							
 							</EditBox>
 							<Button name="ButtonOKFreq" inherits="UIPanelButtonTemplate" parent="FrameFloodOption" text="OK">
 								<Size x="26" y="17" />
@@ -1064,7 +986,6 @@
 										Flood_Config.rate = tonumber(FrameFloodOption_EditBoxFreq:GetText());
 									</OnClick>
 								</Scripts>
-							
 							</Button>
 						</Frames>
 						<Scripts>
@@ -1083,16 +1004,55 @@
 
 								FrameFloodOption_OnLoad()
 							</OnLoad>
-
 							<OnShow>
 
 							</OnShow>
-
-
 						</Scripts>
-					
-					
 					</Frame>
+					<ScrollFrame name="$parent_ScrollFrameResponse" inherits="UIPanelScrollFrameTemplate, BackdropTemplate">
+						<Size x="372" y="185" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="RepondeurFloodFrame_ResponseFrame" relativePoint="TOPLEFT">
+								<Offset x="19" y="-45" />
+							</Anchor>
+						</Anchors>
+						<ScrollChild>
+							<EditBox name="$parent_ListResponse" multiLine="true" autoFocus="false">
+								<Size x="350" y="166" />
+								<Scripts>
+									<OnTextChanged>
+										local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
+										self:GetParent():UpdateScrollChildRect();
+										local min;
+										local max;
+										min, max = scrollBar:GetMinMaxValues();
+										if ( max &gt; 0 and (self.max ~= max) ) then
+											self.max = max;
+											scrollBar:SetValue(max);
+										end
+									</OnTextChanged>
+									<OnEscapePressed>
+										self:ClearFocus();
+									</OnEscapePressed>
+									<OnShow>
+										Repondeur_UpdateResponse();
+									</OnShow>
+									<OnHide>
+										Repondeur_SaveResponse();
+									</OnHide>
+									<OnEditFocusLost>
+										Repondeur_SaveResponse();
+									</OnEditFocusLost>
+								</Scripts>
+								<FontString inherits="GameFontHighlightSmall" nonspacewrap="true">
+									<Color r="1" g="1" b="1" />
+									<Shadow x="1" y="-1">
+										<Color r="0.753" g="0.753" b="0.753" />
+									</Shadow>
+								</FontString>
+							</EditBox>
+						</ScrollChild>
+					</ScrollFrame>
 				</Frames>
 				<Scripts>
 					<OnLoad>
