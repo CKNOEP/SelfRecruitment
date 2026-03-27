@@ -1,0 +1,9 @@
+## Interface: 20505
+## Version: 3.04.3
+## Title: Self Recruitment, Spam & Responder [TBC]
+## Author: Updated & Modified by L'ancestre - creation Ayradyss/Chef de Loup -  and Andrew "HellsGuard" Allan -HF Creations
+## Notes: Automatically sends a whispered response to someone who whispers you using the prescribed string. TBC Anniversary 2.5.5 Edition.
+## SavedVariablesPerCharacter: RepondeurOptions, RepondeurMainOptions, AF_characterConfig
+## SavedVariables: AF_config
+
+Repondeur.xml

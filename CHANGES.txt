@@ -1,0 +1,10 @@
+lightweight tag 3f619f1d4ff2a27a2311dae1dbcabec7f0808335 3.4.1.2
+Author:	LANCESTRE <lancetre@intenebris.org>
+Date:	Sun Jan 15 13:20:44 2023 +0100
+
+commit 3f619f1d4ff2a27a2311dae1dbcabec7f0808335
+Author: LANCESTRE <lancetre@intenebris.org>
+Date:   Sun Jan 15 13:20:44 2023 +0100
+
+    Fix version
+

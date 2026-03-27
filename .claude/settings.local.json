@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lah 'C:\\\\Program Files \\(x86\\)\\\\World of Warcraft\\\\_anniversary_\\\\Logs')",
+      "Bash(tail:*)"
+    ]
+  }
+}
